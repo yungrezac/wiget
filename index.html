@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Виджет DonationAlerts</title>
+    <title>Shokoladik Cards</title>
     <style>
         * {
             margin: 0;
@@ -12,249 +12,711 @@
         }
 
         body {
+            background: transparent;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: transparent;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
+            overflow: hidden;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
         }
 
-        .widget-container {
-            width: 400px;
-            height: 400px;
-            perspective: 1200px;
-        }
-
-        .widget {
-            width: 100%;
-            height: 100%;
+        .cards-container {
             position: relative;
-            transform-style: preserve-3d;
-            transition: transform 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            animation: flip 10s infinite;
+            width: 350px;
+            height: 150px;
+            perspective: 1000px;
         }
 
-        .face {
+        .card {
             position: absolute;
             width: 100%;
             height: 100%;
-            backface-visibility: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 0 2px rgba(255, 255, 255, 0.15),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
             overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
         }
 
-        .front {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(255, 142, 83, 0.9) 100%);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        /* Карточка Telegram */
+        .card-telegram {
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.95) 0%, 
+                rgba(255, 165, 0, 0.95) 30%, 
+                rgba(210, 105, 30, 0.95) 70%,
+                rgba(139, 69, 19, 0.95) 100%);
         }
 
-        .back {
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.9) 0%, rgba(0, 242, 254, 0.9) 100%);
-            transform: rotateY(180deg);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        /* Карточка Стример */
+        .card-streamer {
+            background: linear-gradient(135deg, 
+                rgba(106, 17, 203, 0.95) 0%, 
+                rgba(37, 117, 252, 0.95) 50%,
+                rgba(138, 43, 226, 0.95) 100%);
+        }
+
+        /* Карточка Кожевник */
+        .card-leather {
+            background: linear-gradient(135deg, 
+                rgba(220, 20, 60, 0.95) 0%, 
+                rgba(255, 69, 0, 0.95) 50%,
+                rgba(178, 34, 34, 0.95) 100%);
+        }
+
+        /* Состояния карточек */
+        .card.active {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+            z-index: 3;
+        }
+
+        .card.next {
+            transform: translateX(400px) scale(0.8);
+            opacity: 0;
+            z-index: 2;
+        }
+
+        .card.prev {
+            transform: translateX(-400px) scale(0.8);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .widget-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #fff, #f8f8f8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: logo-spin 8s linear infinite, logo-bounce 3s ease-in-out infinite;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                inset 0 3px 8px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 165, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .card-streamer .logo-container {
+            background: linear-gradient(135deg, #8A2BE2, #4B0082);
+            box-shadow: 
+                0 10px 25px rgba(138, 43, 226, 0.4),
+                inset 0 3px 8px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(138, 43, 226, 0.6);
+        }
+
+        .card-leather .logo-container {
+            background: linear-gradient(135deg, #DC143C, #B22222);
+            box-shadow: 
+                0 10px 25px rgba(220, 20, 60, 0.4),
+                inset 0 3px 8px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(220, 20, 60, 0.6);
+        }
+
+        .custom-logo {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            animation: logo-pulse 2s ease-in-out infinite;
         }
 
         .text-content {
-            text-align: center;
-            max-width: 90%;
+            flex: 1;
+            color: white;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
         }
 
-        .main-text {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 25px;
-            line-height: 1.3;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #fff, #ffeaa7, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: title-glow 3s ease-in-out infinite;
         }
 
-        .support-text {
-            font-size: 22px;
+        .card-streamer .title {
+            background: linear-gradient(45deg, #E0B0FF, #BF40BF, #8A2BE2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-leather .title {
+            background: linear-gradient(45deg, #FFB6C1, #FF69B4, #DC143C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Новый стиль для подписей */
+        .role {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .username {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            animation: text-shake 5s ease-in-out infinite;
+        }
+
+        .card-telegram .username {
+            font-size: 18px;
             opacity: 0.95;
-            line-height: 1.4;
             font-weight: 600;
         }
 
-        .highlight {
-            color: #fffacd;
-            font-weight: 700;
+        .description {
+            font-size: 11px;
+            opacity: 0.9;
+            line-height: 1.2;
         }
 
-        .qr-container {
+        .follow-text {
+            font-size: 14px;
+            opacity: 0.9;
+            animation: pulse 2s infinite, slide-in 3s ease-in-out infinite;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
         }
 
-        .qr-code {
-            width: 220px;
-            height: 220px;
-            border: 3px solid rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
-            padding: 12px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
+        .pulse-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 1.5s infinite, dot-rotate 4s linear infinite;
+            box-shadow: 0 0 20px #00ff88;
         }
 
-        .qr-code img {
+        .card-streamer .pulse-dot {
+            background: #BF40BF;
+            box-shadow: 0 0 20px #BF40BF;
+        }
+
+        .card-leather .pulse-dot {
+            background: #FF69B4;
+            box-shadow: 0 0 20px #FF69B4;
+        }
+
+        /* Анимированные элементы */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            border-radius: 8px;
+            pointer-events: none;
         }
 
-        .caption {
-            font-size: 22px;
-            font-weight: 700;
-            text-align: center;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        @keyframes flip {
-            0%, 40% {
-                transform: rotateY(0deg);
-            }
-            50%, 90% {
-                transform: rotateY(180deg);
-            }
-            100% {
-                transform: rotateY(360deg);
-            }
-        }
-
-        /* Анимация пульсации для текста */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            }
-            50% {
-                transform: scale(1.05);
-                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-            }
-        }
-
-        .pulse {
-            animation: pulse 3s infinite;
-        }
-
-        /* Анимация появления текста */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 1.5s ease-out;
-        }
-
-        /* Декоративные элементы */
-        .decoration {
+        .floating-element {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            animation: float-around 8s infinite linear;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
 
-        .dec-1 {
-            width: 80px;
-            height: 80px;
-            top: -20px;
-            right: -20px;
+        .floating-element:nth-child(1) {
+            width: 30px;
+            height: 30px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
         }
 
-        .dec-2 {
-            width: 60px;
-            height: 60px;
-            bottom: -10px;
-            left: -10px;
+        .floating-element:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            top: 70%;
+            left: 80%;
+            animation-delay: -2s;
         }
 
-        /* Индикатор переворота */
-        .flip-indicator {
+        .floating-element:nth-child(3) {
+            width: 25px;
+            height: 25px;
+            top: 40%;
+            left: 85%;
+            animation-delay: -4s;
+        }
+
+        .card-telegram .floating-element {
+            background: radial-gradient(circle, #ffd700, #ff6b00);
+        }
+
+        .card-streamer .floating-element {
+            background: radial-gradient(circle, #BF40BF, #8A2BE2);
+        }
+
+        .card-leather .floating-element {
+            background: radial-gradient(circle, #FF69B4, #DC143C);
+        }
+
+        .chocolate-particles {
             position: absolute;
-            bottom: 15px;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .chocolate-particle {
+            position: absolute;
+            background: url('https://image.pngaaa.com/928/1155928-middle.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.15;
+            animation: chocolate-float 12s infinite linear;
+            filter: brightness(1.2) contrast(1.3);
+        }
+
+        .chocolate-particle:nth-child(1) {
+            width: 35px;
+            height: 35px;
+            top: 5%;
+            right: 15%;
+            animation-delay: 0s;
+        }
+
+        .chocolate-particle:nth-child(2) {
+            width: 28px;
+            height: 28px;
+            top: 65%;
+            left: 8%;
+            animation-delay: -4s;
+        }
+
+        .chocolate-particle:nth-child(3) {
+            width: 22px;
+            height: 22px;
+            bottom: 15%;
+            right: 25%;
+            animation-delay: -8s;
+        }
+
+        /* Индикаторы прогресса */
+        .progress-indicators {
+            position: absolute;
+            bottom: -25px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 14px;
-            opacity: 0.7;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 5px 10px;
-            border-radius: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .progress-dot.active {
+            background: white;
+            transform: scale(1.3);
+            box-shadow: 0 0 10px white;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Анимации */
+        @keyframes logo-spin {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.05);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes logo-bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes logo-pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+            }
+        }
+
+        @keyframes title-glow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            }
+            50% {
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 165, 0, 0.8);
+            }
+        }
+
+        @keyframes text-shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(2px);
+            }
+            75% {
+                transform: translateX(-2px);
+            }
+        }
+
+        @keyframes float-around {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(25px, 20px) rotate(90deg) scale(1.1);
+            }
+            50% {
+                transform: translate(15px, 35px) rotate(180deg) scale(0.9);
+            }
+            75% {
+                transform: translate(-15px, 20px) rotate(270deg) scale(1.05);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes chocolate-float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 0.15;
+            }
+            25% {
+                transform: translateY(-20px) rotate(90deg) scale(1.15);
+                opacity: 0.2;
+            }
+            50% {
+                transform: translateY(-10px) rotate(180deg) scale(0.85);
+                opacity: 0.25;
+            }
+            75% {
+                transform: translateY(-30px) rotate(270deg) scale(1.1);
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.8;
+                transform: translateX(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(3px);
+            }
+        }
+
+        @keyframes slide-in {
+            0%, 100% {
+                transform: translateX(-5px);
+            }
+            50% {
+                transform: translateX(0px);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(0.9);
+            }
+        }
+
+        @keyframes dot-rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 400px) {
+            .cards-container {
+                width: 300px;
+                height: 130px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .logo-container {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .custom-logo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .username {
+                font-size: 18px;
+            }
+            
+            .role {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="widget-container">
-        <div class="widget">
-            <!-- Передняя сторона - текст -->
-            <div class="face front">
-                <div class="decoration dec-1"></div>
-                <div class="decoration dec-2"></div>
-                
-                <div class="text-content fade-in">
-                    <div class="main-text pulse">🎁 Подарки не дарить!</div>
-                    <div class="support-text">
-                        Поддержи меня через <span class="highlight">DonationAlerts</span><br>
-                        <span class="highlight">Ссылка в профиле</span>
-                    </div>
-                </div>
-                
-                <div class="flip-indicator">Автоматически перевернётся через 4 сек...</div>
+    <div class="cards-container" id="cardsContainer">
+        <!-- Карточка Telegram -->
+        <div class="card card-telegram active" data-card="0">
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
             </div>
             
-            <!-- Задняя сторона - QR-код -->
-            <div class="face back">
-                <div class="decoration dec-1"></div>
-                <div class="decoration dec-2"></div>
-                
-                <div class="qr-container fade-in">
-                    <div class="qr-code">
-                        <img src="https://files.donationalerts.com/uploads/qr/14606109/qr_577b578fb8af4147fb631cdcd0c75ad6.png" 
-                             alt="QR-код DonationAlerts">
-                    </div>
-                    <div class="caption">Отсканируйте для поддержки</div>
+            <div class="chocolate-particles">
+                <div class="chocolate-particle"></div>
+                <div class="chocolate-particle"></div>
+                <div class="chocolate-particle"></div>
+            </div>
+            
+            <div class="widget-content">
+                <div class="logo-container">
+                    <img src="https://image.pngaaa.com/928/1155928-middle.png" alt="Shokoladik Logo" class="custom-logo">
                 </div>
                 
-                <div class="flip-indicator">Автоматически перевернётся через 4 сек...</div>
+                <div class="text-content">
+                    <div class="title">Мой ТГ</div>
+                    <div class="username">@Shokoladik000</div>
+                    <div class="follow-text">
+                        <span class="pulse-dot"></span>
+                        Telegram канал
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Карточка Стример -->
+        <div class="card card-streamer next" data-card="1">
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+            
+            <div class="widget-content">
+                <div class="logo-container">
+                    <img src="https://i.ibb.co/KcP3xMwG/IMG-20251108-171838-417.jpg">
+                </div>
+                <div class="text-content">
+                    <div class="role">Любимый стример</div>
+                    <div class="username">@TSETSERKA</div>
+                    <div class="description">Прямые эфиры каждый вечер</div>
+                    <div class="follow-text">
+                        <span class="pulse-dot"></span>
+                        Смотри стримы 🎥
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка Кожевник -->
+        <div class="card card-leather prev" data-card="2">
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+            
+            <div class="widget-content">
+                <div class="logo-container">
+                    <img src="https://i.ibb.co/qLP7mfSc/10925.png">
+                </div>
+                <div class="text-content">
+                    <div class="role">Любимый кожевник</div>
+                    <div class="username">@KHULAP.AV</div>
+                    <div class="description">Ручная работа премиум качества</div>
+                    <div class="follow-text">
+                        <span class="pulse-dot"></span>
+                        Заказывайте изделие ✨
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Индикаторы прогресса -->
+        <div class="progress-indicators">
+            <div class="progress-dot active" data-index="0"></div>
+            <div class="progress-dot" data-index="1"></div>
+            <div class="progress-dot" data-index="2"></div>
         </div>
     </div>
 
     <script>
-        // Добавляем интерактивность - возможность перевернуть виджет кликом
-        document.querySelector('.widget').addEventListener('click', function() {
-            this.style.animationPlayState = 'paused';
-            
-            if (this.style.transform === 'rotateY(180deg)' || 
-                this.classList.contains('flipped')) {
-                this.style.transform = 'rotateY(0deg)';
-                this.classList.remove('flipped');
-            } else {
-                this.style.transform = 'rotateY(180deg)';
-                this.classList.add('flipped');
+        class CardCarousel {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.cards = this.container.querySelectorAll('.card');
+                this.dots = this.container.querySelectorAll('.progress-dot');
+                this.currentIndex = 0;
+                this.autoSlideInterval = null;
+                this.autoSlideDelay = 4000; // 4 секунды
+                
+                this.init();
             }
             
-            // Возобновляем анимацию через 5 секунд
-            setTimeout(() => {
-                this.style.animationPlayState = 'running';
-            }, 5000);
+            init() {
+                this.initializeCards();
+                this.startAutoSlide();
+                this.setupEventListeners();
+            }
+            
+            initializeCards() {
+                this.cards.forEach((card, index) => {
+                    card.classList.remove('active', 'next', 'prev');
+                    
+                    if (index === this.currentIndex) {
+                        card.classList.add('active');
+                    } else if (index === (this.currentIndex + 1) % this.cards.length) {
+                        card.classList.add('next');
+                    } else {
+                        card.classList.add('prev');
+                    }
+                });
+                
+                this.updateIndicators();
+            }
+            
+            nextCard() {
+                const nextIndex = (this.currentIndex + 1) % this.cards.length;
+                this.goToCard(nextIndex);
+            }
+            
+            goToCard(index) {
+                if (index === this.currentIndex) return;
+                
+                this.currentIndex = index;
+                this.initializeCards();
+                this.updateIndicators();
+            }
+            
+            updateIndicators() {
+                this.dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentIndex);
+                });
+            }
+            
+            startAutoSlide() {
+                this.autoSlideInterval = setInterval(() => {
+                    this.nextCard();
+                }, this.autoSlideDelay);
+            }
+            
+            stopAutoSlide() {
+                if (this.autoSlideInterval) {
+                    clearInterval(this.autoSlideInterval);
+                    this.autoSlideInterval = null;
+                }
+            }
+            
+            setupEventListeners() {
+                // Клик по индикаторам
+                this.dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        this.stopAutoSlide();
+                        this.goToCard(index);
+                        this.startAutoSlide();
+                    });
+                });
+                
+                // Клик по карточкам
+                this.cards.forEach((card, index) => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.progress-dot')) return;
+                        
+                        if (card.classList.contains('card-telegram')) {
+                            window.open('https://t.me/Shokoladik000', '_blank');
+                        }
+                        // Для других карточек можно добавить свои действия
+                    });
+                });
+                
+                // Пауза при наведении
+                this.container.addEventListener('mouseenter', () => {
+                    this.stopAutoSlide();
+                });
+                
+                this.container.addEventListener('mouseleave', () => {
+                    this.startAutoSlide();
+                });
+            }
+        }
+        
+        // Инициализация карусели при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            new CardCarousel('cardsContainer');
         });
     </script>
 </body>
