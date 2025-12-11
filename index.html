@@ -3,720 +3,451 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shokoladik Cards</title>
+    <title>DA Custom Widget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
         body {
-            background: transparent; /* Фон теперь прозрачный */
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .cards-container {
-            position: relative;
-            width: 350px;
-            height: 150px;
-            perspective: 1000px;
-        }
-
-        .card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.4),
-                0 0 0 2px rgba(255, 255, 255, 0.15),
-                inset 0 2px 10px rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(15px);
-            overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            cursor: pointer;
-        }
-
-        /* Карточка Telegram */
-        .card-telegram {
-            background: linear-gradient(135deg, 
-                rgba(255, 215, 0, 0.95) 0%, 
-                rgba(255, 165, 0, 0.95) 30%, 
-                rgba(210, 105, 30, 0.95) 70%,
-                rgba(139, 69, 19, 0.95) 100%);
-        }
-
-        /* Карточка Стример */
-        .card-streamer {
-            background: linear-gradient(135deg, 
-                rgba(106, 17, 203, 0.95) 0%, 
-                rgba(37, 117, 252, 0.95) 50%,
-                rgba(138, 43, 226, 0.95) 100%);
-        }
-
-        /* Карточка Кожевник */
-        .card-leather {
-            background: linear-gradient(135deg, 
-                rgba(220, 20, 60, 0.95) 0%, 
-                rgba(255, 69, 0, 0.95) 50%,
-                rgba(178, 34, 34, 0.95) 100%);
-        }
-
-        /* Состояния карточек */
-        .card.active {
-            transform: translateX(0) scale(1);
-            opacity: 1;
-            z-index: 3;
-        }
-
-        .card.next {
-            transform: translateX(400px) scale(0.8);
-            opacity: 0;
-            z-index: 2;
-        }
-
-        .card.prev {
-            transform: translateX(-400px) scale(0.8);
-            opacity: 0;
-            z-index: 1;
-        }
-
-        .widget-content {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            height: 100%;
-            width: 100%;
-        }
-
-        .logo-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #fff, #f8f8f8);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: logo-spin 8s linear infinite, logo-bounce 3s ease-in-out infinite;
-            box-shadow: 
-                0 10px 25px rgba(0, 0, 0, 0.3),
-                inset 0 3px 8px rgba(255, 255, 255, 0.8),
-                0 0 20px rgba(255, 165, 0, 0.5);
-            border: 3px solid rgba(255, 255, 255, 0.6);
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .card-streamer .logo-container {
-            background: linear-gradient(135deg, #8A2BE2, #4B0082);
-            box-shadow: 
-                0 10px 25px rgba(138, 43, 226, 0.4),
-                inset 0 3px 8px rgba(255, 255, 255, 0.8),
-                0 0 20px rgba(138, 43, 226, 0.6);
-        }
-
-        .card-leather .logo-container {
-            background: linear-gradient(135deg, #DC143C, #B22222);
-            box-shadow: 
-                0 10px 25px rgba(220, 20, 60, 0.4),
-                inset 0 3px 8px rgba(255, 255, 255, 0.8),
-                0 0 20px rgba(220, 20, 60, 0.6);
-        }
-
-        .custom-logo {
-            width: 55px;
-            height: 55px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-            animation: logo-pulse 2s ease-in-out infinite;
-        }
-
-        .text-content {
-            flex: 1;
+            font-family: 'Montserrat', sans-serif;
+            background-color: transparent; /* Прозрачный фон для OBS */
             color: white;
-            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
         }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            background: linear-gradient(45deg, #fff, #ffeaa7, #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: title-glow 3s ease-in-out infinite;
-        }
-
-        .card-streamer .title {
-            background: linear-gradient(45deg, #E0B0FF, #BF40BF, #8A2BE2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .card-leather .title {
-            background: linear-gradient(45deg, #FFB6C1, #FF69B4, #DC143C);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Новый стиль для подписей */
-        .role {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .username {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            animation: text-shake 5s ease-in-out infinite;
-        }
-
-        .card-telegram .username {
-            font-size: 18px;
-            opacity: 0.95;
-            font-weight: 600;
-        }
-
-        .description {
-            font-size: 11px;
-            opacity: 0.9;
-            line-height: 1.2;
-        }
-
-        .follow-text {
-            font-size: 14px;
-            opacity: 0.9;
-            animation: pulse 2s infinite, slide-in 3s ease-in-out infinite;
+        /* Если открыто просто в браузере, даем темный фон для теста */
+        body.preview-mode {
+            background-color: #1a1a1a;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
-            margin-top: 5px;
+            height: 100vh;
         }
 
-        .pulse-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background: #00ff88;
-            border-radius: 50%;
-            animation: blink 1.5s infinite, dot-rotate 4s linear infinite;
-            box-shadow: 0 0 20px #00ff88;
+        .widget-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(23, 23, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
         }
 
-        .card-streamer .pulse-dot {
-            background: #BF40BF;
-            box-shadow: 0 0 20px #BF40BF;
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            height: 28px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
 
-        .card-leather .pulse-dot {
-            background: #FF69B4;
-            box-shadow: 0 0 20px #FF69B4;
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            box-shadow: 0 0 20px rgba(229, 46, 113, 0.4);
+            border-radius: 99px;
         }
 
-        /* Анимированные элементы */
-        .floating-elements {
+        /* Эффект блика на полосе */
+        .progress-bar-fill::after {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.4) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
         }
 
-        .floating-element {
-            position: absolute;
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+
+        .last-donation {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+        
+        .last-donation.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .currency-symbol {
+            font-weight: 300;
+            opacity: 0.8;
+            font-size: 0.8em;
+        }
+
+        /* Пульсация при достижении цели */
+        .goal-reached {
+            animation: pulse-gold 2s infinite;
+            border: 2px solid #FFD700;
+        }
+        .goal-reached .progress-bar-fill {
+             background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+
+        /* Индикатор загрузки */
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            animation: float-around 8s infinite linear;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 5px;
         }
-
-        .floating-element:nth-child(1) {
-            width: 30px;
-            height: 30px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
-        .floating-element:nth-child(2) {
-            width: 20px;
-            height: 20px;
-            top: 70%;
-            left: 80%;
-            animation-delay: -2s;
-        }
-
-        .floating-element:nth-child(3) {
-            width: 25px;
-            height: 25px;
-            top: 40%;
-            left: 85%;
-            animation-delay: -4s;
-        }
-
-        .card-telegram .floating-element {
-            background: radial-gradient(circle, #ffd700, #ff6b00);
-        }
-
-        .card-streamer .floating-element {
-            background: radial-gradient(circle, #BF40BF, #8A2BE2);
-        }
-
-        .card-leather .floating-element {
-            background: radial-gradient(circle, #FF69B4, #DC143C);
-        }
-
-        .chocolate-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .chocolate-particle {
-            position: absolute;
-            background: url('https://image.pngaaa.com/928/1155928-middle.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            opacity: 0.15;
-            animation: chocolate-float 12s infinite linear;
-            filter: brightness(1.2) contrast(1.3);
-        }
-
-        .chocolate-particle:nth-child(1) {
-            width: 35px;
-            height: 35px;
-            top: 5%;
-            right: 15%;
-            animation-delay: 0s;
-        }
-
-        .chocolate-particle:nth-child(2) {
-            width: 28px;
-            height: 28px;
-            top: 65%;
-            left: 8%;
-            animation-delay: -4s;
-        }
-
-        .chocolate-particle:nth-child(3) {
-            width: 22px;
-            height: 22px;
-            bottom: 15%;
-            right: 25%;
-            animation-delay: -8s;
-        }
-
-        /* Индикаторы прогресса */
-        .progress-indicators {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .progress-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .progress-dot.active {
-            background: white;
-            transform: scale(1.3);
-            box-shadow: 0 0 10px white;
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Анимации */
-        @keyframes logo-spin {
-            0% {
-                transform: rotate(0deg) scale(1);
-            }
-            50% {
-                transform: rotate(180deg) scale(1.05);
-            }
-            100% {
-                transform: rotate(360deg) scale(1);
-            }
-        }
-
-        @keyframes logo-bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        @keyframes logo-pulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-            }
-            50% {
-                transform: scale(1.1);
-                filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
-            }
-        }
-
-        @keyframes title-glow {
-            0%, 100% {
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-            }
-            50% {
-                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 165, 0, 0.8);
-            }
-        }
-
-        @keyframes text-shake {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(2px);
-            }
-            75% {
-                transform: translateX(-2px);
-            }
-        }
-
-        @keyframes float-around {
-            0% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            25% {
-                transform: translate(25px, 20px) rotate(90deg) scale(1.1);
-            }
-            50% {
-                transform: translate(15px, 35px) rotate(180deg) scale(0.9);
-            }
-            75% {
-                transform: translate(-15px, 20px) rotate(270deg) scale(1.05);
-            }
-            100% {
-                transform: translate(0, 0) rotate(360deg) scale(1);
-            }
-        }
-
-        @keyframes chocolate-float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg) scale(1);
-                opacity: 0.15;
-            }
-            25% {
-                transform: translateY(-20px) rotate(90deg) scale(1.15);
-                opacity: 0.2;
-            }
-            50% {
-                transform: translateY(-10px) rotate(180deg) scale(0.85);
-                opacity: 0.25;
-            }
-            75% {
-                transform: translateY(-30px) rotate(270deg) scale(1.1);
-                opacity: 0.2;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 0.8;
-                transform: translateX(0);
-            }
-            50% {
-                opacity: 1;
-                transform: translateX(3px);
-            }
-        }
-
-        @keyframes slide-in {
-            0%, 100% {
-                transform: translateX(-5px);
-            }
-            50% {
-                transform: translateX(0px);
-            }
-        }
-
-        @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.7;
-                transform: scale(0.9);
-            }
-        }
-
-        @keyframes dot-rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Адаптивность */
-        @media (max-width: 400px) {
-            .cards-container {
-                width: 300px;
-                height: 130px;
-            }
-            
-            .card {
-                padding: 15px;
-            }
-            
-            .logo-container {
-                width: 60px;
-                height: 60px;
-            }
-            
-            .custom-logo {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .title {
-                font-size: 20px;
-            }
-            
-            .username {
-                font-size: 18px;
-            }
-            
-            .role {
-                font-size: 11px;
-            }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
         }
     </style>
 </head>
-<body>
-    <div class="cards-container" id="cardsContainer">
-        <!-- Карточка Telegram -->
-        <div class="card card-telegram active" data-card="0">
-            <div class="floating-elements">
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
+<body class="preview-mode" id="mainBody">
+
+    <!-- Основной контейнер виджета -->
+    <div class="widget-container" id="widget">
+        
+        <!-- Заголовок цели -->
+        <div class="flex justify-between items-end mb-1">
+            <div class="flex-1">
+                <h2 class="stat-label mb-1">Активная цель</h2>
+                <h1 class="text-xl font-bold text-white leading-tight" id="goalTitle">Загрузка цели...</h1>
+            </div>
+        </div>
+
+        <!-- Полоса прогресса -->
+        <div class="relative mb-4">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar"></div>
             </div>
             
-            <div class="chocolate-particles">
-                <div class="chocolate-particle"></div>
-                <div class="chocolate-particle"></div>
-                <div class="chocolate-particle"></div>
-            </div>
-            
-            <div class="widget-content">
-                <div class="logo-container">
-                    <img src="https://image.pngaaa.com/928/1155928-middle.png" alt="Shokoladik Logo" class="custom-logo">
+            <!-- Цифры под полосой -->
+            <div class="flex justify-between items-center mt-2">
+                <div>
+                    <div class="stat-label">Собрано</div>
+                    <div class="text-lg font-bold text-white" id="currentAmount">0 <span class="currency-symbol">₽</span></div>
                 </div>
                 
-                <div class="text-content">
-                    <div class="title">Мой ТГ</div>
-                    <div class="username">@Shokoladik000</div>
-                    <div class="follow-text">
-                        <span class="pulse-dot"></span>
-                        Telegram канал
-                    </div>
+                <div class="text-center bg-white/10 px-3 py-1 rounded-lg">
+                    <span class="text-sm font-bold text-white" id="percentageText">0%</span>
+                </div>
+
+                <div class="text-right">
+                    <div class="stat-label">Цель</div>
+                    <div class="text-lg font-bold text-white" id="targetAmount">0 <span class="currency-symbol">₽</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Карточка Стример -->
-        <div class="card card-streamer next" data-card="1">
-            <div class="floating-elements">
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
-            </div>
-            
-            <div class="widget-content">
-                <div class="logo-container">
-                    <img src="https://i.ibb.co/KcP3xMwG/IMG-20251108-171838-417.jpg">
+        <!-- Последнее событие -->
+        <div class="border-t border-white/10 pt-3 mt-2">
+            <div class="flex items-center space-x-3 last-donation" id="lastEventContainer">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shrink-0">
+                    <i class="fas fa-ghost text-white text-sm"></i>
                 </div>
-                <div class="text-content">
-                    <div class="role">Любимый стример</div>
-                    <div class="username">@TSETSERKA</div>
-                    <div class="description">Прямые эфиры каждый вечер</div>
-                    <div class="follow-text">
-                        <span class="pulse-dot"></span>
-                        Смотри стримы 🎥
+                <div class="min-w-0 flex-1">
+                    <div class="flex justify-between items-baseline">
+                        <div class="text-sm font-bold text-white truncate pr-2"><span id="donorName" class="text-purple-300">Аноним</span></div>
+                        <div class="text-sm font-bold text-green-400 whitespace-nowrap" id="donationAmount">+0 ₽</div>
                     </div>
+                    <div class="text-xs text-gray-400 truncate" id="donationMessage">Ожидание доната...</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Карточка Кожевник -->
-        <div class="card card-leather prev" data-card="2">
-            <div class="floating-elements">
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
-                <div class="floating-element"></div>
-            </div>
-            
-            <div class="widget-content">
-                <div class="logo-container">
-                    <img src="https://i.ibb.co/qLP7mfSc/10925.png">
-                </div>
-                <div class="text-content">
-                    <div class="role">Любимый кожевник</div>
-                    <div class="username">@KHULAP.AV</div>
-                    <div class="description">Ручная работа премиум качества</div>
-                    <div class="follow-text">
-                        <span class="pulse-dot"></span>
-                        Заказывайте изделие ✨
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Индикаторы прогресса -->
-        <div class="progress-indicators">
-            <div class="progress-dot active" data-index="0"></div>
-            <div class="progress-dot" data-index="1"></div>
-            <div class="progress-dot" data-index="2"></div>
         </div>
     </div>
 
-    <script>
-        class CardCarousel {
-            constructor(containerId) {
-                this.container = document.getElementById(containerId);
-                this.cards = this.container.querySelectorAll('.card');
-                this.dots = this.container.querySelectorAll('.progress-dot');
-                this.currentIndex = 0;
-                this.autoSlideInterval = null;
-                this.autoSlideDelay = 4000; // 4 секунды
-                
-                this.init();
-            }
-            
-            init() {
-                this.initializeCards();
-                this.startAutoSlide();
-                this.setupEventListeners();
-            }
-            
-            initializeCards() {
-                this.cards.forEach((card, index) => {
-                    card.classList.remove('active', 'next', 'prev');
-                    
-                    if (index === this.currentIndex) {
-                        card.classList.add('active');
-                    } else if (index === (this.currentIndex + 1) % this.cards.length) {
-                        card.classList.add('next');
-                    } else {
-                        card.classList.add('prev');
-                    }
-                });
-                
-                this.updateIndicators();
-            }
-            
-            nextCard() {
-                const nextIndex = (this.currentIndex + 1) % this.cards.length;
-                this.goToCard(nextIndex);
-            }
-            
-            goToCard(index) {
-                if (index === this.currentIndex) return;
-                
-                this.currentIndex = index;
-                this.initializeCards();
-                this.updateIndicators();
-            }
-            
-            updateIndicators() {
-                this.dots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index === this.currentIndex);
-                });
-            }
-            
-            startAutoSlide() {
-                this.autoSlideInterval = setInterval(() => {
-                    this.nextCard();
-                }, this.autoSlideDelay);
-            }
-            
-            stopAutoSlide() {
-                if (this.autoSlideInterval) {
-                    clearInterval(this.autoSlideInterval);
-                    this.autoSlideInterval = null;
-                }
-            }
-            
-            setupEventListeners() {
-                // Клик по индикаторам
-                this.dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => {
-                        this.stopAutoSlide();
-                        this.goToCard(index);
-                        this.startAutoSlide();
-                    });
-                });
-                
-                // Клик по карточкам
-                this.cards.forEach((card, index) => {
-                    card.addEventListener('click', (e) => {
-                        if (e.target.closest('.progress-dot')) return;
-                        
-                        if (card.classList.contains('card-telegram')) {
-                            window.open('https://t.me/Shokoladik000', '_blank');
-                        }
-                        // Для других карточек можно добавить свои действия
-                    });
-                });
-                
-                // Пауза при наведении
-                this.container.addEventListener('mouseenter', () => {
-                    this.stopAutoSlide();
-                });
-                
-                this.container.addEventListener('mouseleave', () => {
-                    this.startAutoSlide();
-                });
-            }
-        }
+    <!-- Панель управления (скрыть в OBS) -->
+    <div class="fixed bottom-4 right-4 bg-gray-900/90 backdrop-blur p-4 rounded-xl border border-gray-700 shadow-2xl max-w-xs text-xs z-50" id="controls">
+        <h3 class="font-bold mb-2 text-gray-300 flex items-center">
+            <i class="fas fa-cog mr-2"></i>Настройки
+        </h3>
+        <p class="mb-3 text-gray-500 text-[10px] leading-tight">
+            Используем ссылку виджета для получения данных.
+        </p>
         
-        // Инициализация карусели при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            new CardCarousel('cardsContainer');
-        });
-    </script>
+        <div class="space-y-2">
+            <button onclick="updateFromWidgetUrl()" id="btnApi" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg w-full transition font-bold shadow-lg shadow-indigo-500/30 border border-indigo-400/20">
+                <i class="fas fa-sync mr-1"></i> Обновить данные (Scrape)
+            </button>
+            
+            <button onclick="toggleSimulation()" id="btnSim" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg w-full transition border border-gray-600">
+                <i class="fas fa-random mr-1"></i> Симуляция (Тест)
+            </button>
+        </div>
+        
+        <div class="mt-3 pt-3 border-t border-gray-700 text-gray-500 text-[10px]">
+           ID виджета: <span class="font-mono text-gray-300">9192962</span>
+        </div>
+    </div>
+
+<script>
+    // --- КОНФИГУРАЦИЯ ---
+    const CONFIG = {
+        // Данные из вашей ссылки: https://www.donationalerts.com/widget/goal/9192962?token=gfxZrujqLx4JpcPrnZ4l
+        widgetUrl: 'https://www.donationalerts.com/widget/goal/9192962?token=gfxZrujqLx4JpcPrnZ4l',
+        currency: 'RUB',
+        isSimulation: false 
+    };
+
+    // Состояние виджета
+    let state = {
+        current: 0,
+        target: 1000,
+        title: "Загрузка...",
+        lastDonor: "Система",
+        lastMessage: "Ожидание данных...",
+        lastAmount: 0
+    };
+
+    // Элементы DOM
+    const els = {
+        bar: document.getElementById('progressBar'),
+        current: document.getElementById('currentAmount'),
+        target: document.getElementById('targetAmount'),
+        percent: document.getElementById('percentageText'),
+        title: document.getElementById('goalTitle'),
+        donorName: document.getElementById('donorName'),
+        donorMsg: document.getElementById('donationMessage'),
+        donorAmt: document.getElementById('donationAmount'),
+        eventContainer: document.getElementById('lastEventContainer'),
+        widget: document.getElementById('widget'),
+        btnApi: document.getElementById('btnApi'),
+        btnSim: document.getElementById('btnSim')
+    };
+
+    // --- ФУНКЦИИ ОБНОВЛЕНИЯ UI ---
+
+    function updateUI() {
+        let percent = (state.current / state.target) * 100;
+        if (state.target <= 0) percent = 0;
+        if (percent > 100) percent = 100;
+
+        // Обновление ширины
+        els.bar.style.width = `${percent}%`;
+        els.percent.innerText = `${percent.toFixed(0)}%`;
+        
+        // Форматирование
+        const formatMoney = (val) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: CONFIG.currency, maximumFractionDigits: 0 }).format(val);
+        
+        els.current.innerText = formatMoney(state.current);
+        els.target.innerText = formatMoney(state.target);
+        els.title.innerText = state.title;
+
+        // Стиль выполнения
+        if (state.current >= state.target && state.target > 0) {
+            els.widget.classList.add('goal-reached');
+        } else {
+            els.widget.classList.remove('goal-reached');
+        }
+    }
+
+    function triggerNewDonation(name, amount, message) {
+        els.eventContainer.classList.remove('visible');
+        setTimeout(() => {
+            els.donorName.innerText = name;
+            els.donorMsg.innerText = message || "";
+            els.donorAmt.innerText = `+${amount} ${CONFIG.currency}`;
+            
+            const numAmount = parseFloat(amount);
+            animateValue(state.current, state.current + numAmount, 1000);
+            state.current += numAmount;
+
+            els.eventContainer.classList.add('visible');
+            updateUI();
+        }, 500);
+    }
+
+    function animateValue(start, end, duration) {
+        if (start === end) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            
+            const formatMoney = (val) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: CONFIG.currency, maximumFractionDigits: 0 }).format(val);
+            els.current.innerText = formatMoney(value);
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                updateUI();
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // --- ЛОГИКА ---
+
+    function toggleSimulation() {
+        CONFIG.isSimulation = !CONFIG.isSimulation;
+        if (CONFIG.isSimulation) {
+            startSimulation();
+            els.btnSim.classList.replace('bg-gray-700', 'bg-blue-600');
+            els.btnSim.innerHTML = '<i class="fas fa-check mr-1"></i> Симуляция (ВКЛ)';
+        } else {
+            stopSimulation();
+            els.btnSim.classList.replace('bg-blue-600', 'bg-gray-700');
+            els.btnSim.innerHTML = '<i class="fas fa-random mr-1"></i> Симуляция (ВЫКЛ)';
+            // Вернем реальные данные если есть
+            updateUI();
+        }
+    }
+
+    let simInterval;
+    function startSimulation() {
+        if (simInterval) clearInterval(simInterval);
+        els.eventContainer.classList.add('visible');
+        simInterval = setInterval(() => {
+            const names = ["Спонсор_1", "Зритель", "Fan123"];
+            triggerNewDonation(names[Math.floor(Math.random()*3)], 100, "Тест");
+        }, 3000); 
+    }
+    function stopSimulation() { clearInterval(simInterval); }
+
+    // --- СКРАПИНГ ДАННЫХ С ПУБЛИЧНОГО ВИДЖЕТА ---
+    async function updateFromWidgetUrl() {
+        if (CONFIG.isSimulation) toggleSimulation(); // Выключаем симуляцию
+        
+        const btn = els.btnApi;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<div class="loading-spinner"></div> Загрузка...';
+        btn.disabled = true;
+
+        console.log("Запрос к:", CONFIG.widgetUrl);
+        
+        // Используем corsproxy для получения HTML страницы виджета
+        // api.allorigins.win или api.codetabs.com часто работают для текста
+        const proxy = 'https://api.codetabs.com/v1/proxy?quest=';
+        
+        try {
+            const response = await fetch(proxy + encodeURIComponent(CONFIG.widgetUrl));
+            if (!response.ok) throw new Error('Ошибка сети при запросе к прокси');
+            
+            const htmlText = await response.text();
+            
+            // В HTML коде виджета DA обычно есть переменные инициализации
+            // Мы попробуем найти JSON внутри тегов <script> или атрибутов
+            // Это "грязный" метод, но он работает для публичных ссылок без API ключа
+            
+            console.log("HTML получен, длина:", htmlText.length);
+
+            // Попытка 1: Поиск явных значений (иногда они просто в span)
+            // Но надежнее искать JS переменные, например `initWidget`
+            
+            // Примечание: Структура DonationAlerts меняется, но часто там есть JSON
+            // Ищем паттерны типа "goal_amount": 1000
+            
+            const raisedMatch = htmlText.match(/"raised_amount"\s*:\s*"?([\d\.]+)"?/);
+            const goalMatch = htmlText.match(/"goal_amount"\s*:\s*"?([\d\.]+)"?/);
+            const titleMatch = htmlText.match(/"title"\s*:\s*"([^"]+)"/);
+            
+            // Альтернативный поиск (если JSON экранирован)
+            const raisedAlt = htmlText.match(/raised_amount&quot;:(\d+)/);
+            
+            let foundData = false;
+            
+            if (raisedMatch && goalMatch) {
+                state.current = parseFloat(raisedMatch[1]);
+                state.target = parseFloat(goalMatch[1]);
+                if (titleMatch) state.title = decodeUnicode(titleMatch[1]);
+                foundData = true;
+            } else if (raisedAlt) {
+                 // Если нашли в другом формате
+                 state.current = parseFloat(raisedAlt[1]);
+                 // Ищем цель
+                 const goalAlt = htmlText.match(/goal_amount&quot;:(\d+)/);
+                 if(goalAlt) state.target = parseFloat(goalAlt[1]);
+                 
+                 const titleAlt = htmlText.match(/title&quot;:&quot;([^&]+)&quot;/);
+                 if(titleAlt) state.title = titleAlt[1];
+                 foundData = true;
+            }
+
+            if (foundData) {
+                updateUI();
+                alert(`Успешно! Цель: ${state.title}\nСобрано: ${state.current} / ${state.target}`);
+                
+                // Сохраняем в localStorage чтобы при перезагрузке OBS не было нулей
+                localStorage.setItem('da_widget_cache', JSON.stringify(state));
+            } else {
+                console.warn("Данные не найдены в HTML через RegEx");
+                // Если не нашли регуляркой, попробуем просто найти числа рядом со словами
+                throw new Error("Не удалось распарсить HTML виджета. Возможно DA изменили верстку.");
+            }
+
+        } catch (e) {
+            console.error(e);
+            alert("Ошибка получения данных: " + e.message + "\n\nПопробуйте использовать симуляцию.");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    function decodeUnicode(str) {
+        return str.replace(/\\u[\dA-F]{4}/gi, 
+            function (match) {
+                return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+            });
+    }
+
+    // При старте проверяем кэш
+    const cached = localStorage.getItem('da_widget_cache');
+    if (cached) {
+        try {
+            const parsed = JSON.parse(cached);
+            state = parsed;
+            updateUI();
+        } catch(e) {}
+    } else {
+        // Если кэша нет, запускаем один раз симуляцию или пробуем фетч
+        updateFromWidgetUrl(); 
+    }
+    
+    // Проверка OBS
+    if (window.location.search.includes('layer-name')) {
+        document.body.classList.remove('preview-mode');
+        document.getElementById('controls').style.display = 'none';
+        // В OBS пробуем обновить данные автоматически раз в минуту
+        setInterval(updateFromWidgetUrl, 60000);
+    }
+
+</script>
 </body>
 </html>
