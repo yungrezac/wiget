@@ -3,451 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DA Custom Widget</title>
+    <title>Красивый Автоматический Баннер</title>
+    <!-- Подключаем Tailwind CSS для стилей -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-
+        /* Дополнительные стили, если нужны */
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: transparent; /* Прозрачный фон для OBS */
-            color: white;
-            overflow: hidden;
-        }
-
-        /* Если открыто просто в браузере, даем темный фон для теста */
-        body.preview-mode {
-            background-color: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .widget-container {
-            width: 100%;
-            max-width: 450px;
-            background: rgba(23, 23, 23, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-        }
-
-        .progress-bar-bg {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 99px;
-            height: 28px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff8a00, #e52e71);
-            width: 0%;
-            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
-            position: relative;
-            box-shadow: 0 0 20px rgba(229, 46, 113, 0.4);
-            border-radius: 99px;
-        }
-
-        /* Эффект блика на полосе */
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(
-                90deg,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0.4) 50%,
-                rgba(255,255,255,0) 100%
-            );
-            transform: translateX(-100%);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(200%); }
-        }
-
-        .last-donation {
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
-        }
-        
-        .last-donation.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .currency-symbol {
-            font-weight: 300;
-            opacity: 0.8;
-            font-size: 0.8em;
-        }
-
-        /* Пульсация при достижении цели */
-        .goal-reached {
-            animation: pulse-gold 2s infinite;
-            border: 2px solid #FFD700;
-        }
-        .goal-reached .progress-bar-fill {
-             background: linear-gradient(90deg, #FFD700, #FFA500);
-        }
-
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
-        }
-
-        /* Индикатор загрузки */
-        .loading-spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 5px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.5);
-            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
     </style>
 </head>
-<body class="preview-mode" id="mainBody">
+<body class="bg-transparent min-h-screen flex items-center justify-center p-4">
 
-    <!-- Основной контейнер виджета -->
-    <div class="widget-container" id="widget">
+    <!-- Основной контейнер баннера -->
+    <!-- Уменьшили высоту с h-80/h-96 до h-72/h-80 -->
+    <div id="banner-container" 
+         class="relative w-full max-w-4xl overflow-hidden rounded-3xl shadow-2xl h-72 sm:h-80 group"
+         onmouseenter="stopAutoSlide()" 
+         onmouseleave="startAutoSlide()">
         
-        <!-- Заголовок цели -->
-        <div class="flex justify-between items-end mb-1">
-            <div class="flex-1">
-                <h2 class="stat-label mb-1">Активная цель</h2>
-                <h1 class="text-xl font-bold text-white leading-tight" id="goalTitle">Загрузка цели...</h1>
-            </div>
-        </div>
-
-        <!-- Полоса прогресса -->
-        <div class="relative mb-4">
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progressBar"></div>
-            </div>
+        <!-- Обертка для слайдов (двигается влево/вправо) -->
+        <div id="slides-wrapper" class="flex h-full transition-transform duration-500 ease-out" style="transform: translateX(0%);">
             
-            <!-- Цифры под полосой -->
-            <div class="flex justify-between items-center mt-2">
-                <div>
-                    <div class="stat-label">Собрано</div>
-                    <div class="text-lg font-bold text-white" id="currentAmount">0 <span class="currency-symbol">₽</span></div>
+            <!-- Слайд 1: Telegram -->
+            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-blue-600 to-cyan-500 p-6 sm:p-14 text-white">
+                <!-- Иконка слева (увеличена до 110px) -->
+                <div class="flex-shrink-0 mr-6 sm:mr-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
                 </div>
-                
-                <div class="text-center bg-white/10 px-3 py-1 rounded-lg">
-                    <span class="text-sm font-bold text-white" id="percentageText">0%</span>
-                </div>
-
-                <div class="text-right">
-                    <div class="stat-label">Цель</div>
-                    <div class="text-lg font-bold text-white" id="targetAmount">0 <span class="currency-symbol">₽</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Последнее событие -->
-        <div class="border-t border-white/10 pt-3 mt-2">
-            <div class="flex items-center space-x-3 last-donation" id="lastEventContainer">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shrink-0">
-                    <i class="fas fa-ghost text-white text-sm"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <div class="flex justify-between items-baseline">
-                        <div class="text-sm font-bold text-white truncate pr-2"><span id="donorName" class="text-purple-300">Аноним</span></div>
-                        <div class="text-sm font-bold text-green-400 whitespace-nowrap" id="donationAmount">+0 ₽</div>
+                <!-- Текст справа -->
+                <div class="text-left">
+                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Telegram канал</h2>
+                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Эксклюзивный контент и новости</p>
+                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
+                        <span>Ссылка в профиле</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
                     </div>
-                    <div class="text-xs text-gray-400 truncate" id="donationMessage">Ожидание доната...</div>
                 </div>
             </div>
+
+            <!-- Слайд 2: Донат -->
+            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-rose-600 to-orange-500 p-6 sm:p-14 text-white">
+                <!-- Иконка слева (увеличена до 110px) -->
+                <div class="flex-shrink-0 mr-6 sm:mr-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </div>
+                <!-- Текст справа -->
+                <div class="text-left">
+                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Поддержи донатом</h2>
+                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Ваша помощь развивает проект</p>
+                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
+                        <span>Ссылка в профиле</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Слайд 3: Суперподписка -->
+            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-violet-700 to-purple-500 p-6 sm:p-14 text-white">
+                <!-- Иконка слева (увеличена до 110px) -->
+                <div class="flex-shrink-0 mr-6 sm:mr-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <!-- Текст справа -->
+                <div class="text-left">
+                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Суперподписка</h2>
+                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Оформи сейчас и получи бонусы</p>
+                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
+                        <span>7 дней бесплатно</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
+        <!-- Кнопка Назад (сделали чуть крупнее) -->
+        <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/40 transition-all z-10 hidden sm:block opacity-0 group-hover:opacity-100 scale-90 active:scale-95 border border-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+
+        <!-- Кнопка Вперед (сделали чуть крупнее) -->
+        <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/40 transition-all z-10 hidden sm:block opacity-0 group-hover:opacity-100 scale-90 active:scale-95 border border-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+
+        <!-- Индикаторы (точки) -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-10" id="dots-container">
+            <!-- Точки генерируются автоматически -->
+        </div>
+
     </div>
 
-    <!-- Панель управления (скрыть в OBS) -->
-    <div class="fixed bottom-4 right-4 bg-gray-900/90 backdrop-blur p-4 rounded-xl border border-gray-700 shadow-2xl max-w-xs text-xs z-50" id="controls">
-        <h3 class="font-bold mb-2 text-gray-300 flex items-center">
-            <i class="fas fa-cog mr-2"></i>Настройки
-        </h3>
-        <p class="mb-3 text-gray-500 text-[10px] leading-tight">
-            Используем ссылку виджета для получения данных.
-        </p>
-        
-        <div class="space-y-2">
-            <button onclick="updateFromWidgetUrl()" id="btnApi" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg w-full transition font-bold shadow-lg shadow-indigo-500/30 border border-indigo-400/20">
-                <i class="fas fa-sync mr-1"></i> Обновить данные (Scrape)
-            </button>
-            
-            <button onclick="toggleSimulation()" id="btnSim" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg w-full transition border border-gray-600">
-                <i class="fas fa-random mr-1"></i> Симуляция (Тест)
-            </button>
-        </div>
-        
-        <div class="mt-3 pt-3 border-t border-gray-700 text-gray-500 text-[10px]">
-           ID виджета: <span class="font-mono text-gray-300">9192962</span>
-        </div>
-    </div>
+    <script>
+        let currentIndex = 0;
+        const slides = document.querySelectorAll('#slides-wrapper > div');
+        const totalSlides = slides.length;
+        const wrapper = document.getElementById('slides-wrapper');
+        const dotsContainer = document.getElementById('dots-container');
+        let slideInterval;
 
-<script>
-    // --- КОНФИГУРАЦИЯ ---
-    const CONFIG = {
-        // Данные из вашей ссылки: https://www.donationalerts.com/widget/goal/9192962?token=gfxZrujqLx4JpcPrnZ4l
-        widgetUrl: 'https://www.donationalerts.com/widget/goal/9192962?token=gfxZrujqLx4JpcPrnZ4l',
-        currency: 'RUB',
-        isSimulation: false 
-    };
-
-    // Состояние виджета
-    let state = {
-        current: 0,
-        target: 1000,
-        title: "Загрузка...",
-        lastDonor: "Система",
-        lastMessage: "Ожидание данных...",
-        lastAmount: 0
-    };
-
-    // Элементы DOM
-    const els = {
-        bar: document.getElementById('progressBar'),
-        current: document.getElementById('currentAmount'),
-        target: document.getElementById('targetAmount'),
-        percent: document.getElementById('percentageText'),
-        title: document.getElementById('goalTitle'),
-        donorName: document.getElementById('donorName'),
-        donorMsg: document.getElementById('donationMessage'),
-        donorAmt: document.getElementById('donationAmount'),
-        eventContainer: document.getElementById('lastEventContainer'),
-        widget: document.getElementById('widget'),
-        btnApi: document.getElementById('btnApi'),
-        btnSim: document.getElementById('btnSim')
-    };
-
-    // --- ФУНКЦИИ ОБНОВЛЕНИЯ UI ---
-
-    function updateUI() {
-        let percent = (state.current / state.target) * 100;
-        if (state.target <= 0) percent = 0;
-        if (percent > 100) percent = 100;
-
-        // Обновление ширины
-        els.bar.style.width = `${percent}%`;
-        els.percent.innerText = `${percent.toFixed(0)}%`;
-        
-        // Форматирование
-        const formatMoney = (val) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: CONFIG.currency, maximumFractionDigits: 0 }).format(val);
-        
-        els.current.innerText = formatMoney(state.current);
-        els.target.innerText = formatMoney(state.target);
-        els.title.innerText = state.title;
-
-        // Стиль выполнения
-        if (state.current >= state.target && state.target > 0) {
-            els.widget.classList.add('goal-reached');
-        } else {
-            els.widget.classList.remove('goal-reached');
-        }
-    }
-
-    function triggerNewDonation(name, amount, message) {
-        els.eventContainer.classList.remove('visible');
-        setTimeout(() => {
-            els.donorName.innerText = name;
-            els.donorMsg.innerText = message || "";
-            els.donorAmt.innerText = `+${amount} ${CONFIG.currency}`;
-            
-            const numAmount = parseFloat(amount);
-            animateValue(state.current, state.current + numAmount, 1000);
-            state.current += numAmount;
-
-            els.eventContainer.classList.add('visible');
-            updateUI();
-        }, 500);
-    }
-
-    function animateValue(start, end, duration) {
-        if (start === end) return;
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            const value = Math.floor(progress * (end - start) + start);
-            
-            const formatMoney = (val) => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: CONFIG.currency, maximumFractionDigits: 0 }).format(val);
-            els.current.innerText = formatMoney(value);
-
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                updateUI();
+        // Инициализация точек (с увеличенным размером)
+        function initDots() {
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = `h-3 rounded-full transition-all duration-300 shadow-sm ${i === 0 ? 'bg-white w-8' : 'bg-white/40 hover:bg-white/80 w-3'}`;
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
             }
-        };
-        window.requestAnimationFrame(step);
-    }
-
-    // --- ЛОГИКА ---
-
-    function toggleSimulation() {
-        CONFIG.isSimulation = !CONFIG.isSimulation;
-        if (CONFIG.isSimulation) {
-            startSimulation();
-            els.btnSim.classList.replace('bg-gray-700', 'bg-blue-600');
-            els.btnSim.innerHTML = '<i class="fas fa-check mr-1"></i> Симуляция (ВКЛ)';
-        } else {
-            stopSimulation();
-            els.btnSim.classList.replace('bg-blue-600', 'bg-gray-700');
-            els.btnSim.innerHTML = '<i class="fas fa-random mr-1"></i> Симуляция (ВЫКЛ)';
-            // Вернем реальные данные если есть
-            updateUI();
         }
-    }
 
-    let simInterval;
-    function startSimulation() {
-        if (simInterval) clearInterval(simInterval);
-        els.eventContainer.classList.add('visible');
-        simInterval = setInterval(() => {
-            const names = ["Спонсор_1", "Зритель", "Fan123"];
-            triggerNewDonation(names[Math.floor(Math.random()*3)], 100, "Тест");
-        }, 3000); 
-    }
-    function stopSimulation() { clearInterval(simInterval); }
-
-    // --- СКРАПИНГ ДАННЫХ С ПУБЛИЧНОГО ВИДЖЕТА ---
-    async function updateFromWidgetUrl() {
-        if (CONFIG.isSimulation) toggleSimulation(); // Выключаем симуляцию
-        
-        const btn = els.btnApi;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<div class="loading-spinner"></div> Загрузка...';
-        btn.disabled = true;
-
-        console.log("Запрос к:", CONFIG.widgetUrl);
-        
-        // Используем corsproxy для получения HTML страницы виджета
-        // api.allorigins.win или api.codetabs.com часто работают для текста
-        const proxy = 'https://api.codetabs.com/v1/proxy?quest=';
-        
-        try {
-            const response = await fetch(proxy + encodeURIComponent(CONFIG.widgetUrl));
-            if (!response.ok) throw new Error('Ошибка сети при запросе к прокси');
+        // Обновление отображения слайдера и точек
+        function updateSlider() {
+            // Сдвиг контейнера
+            wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
             
-            const htmlText = await response.text();
-            
-            // В HTML коде виджета DA обычно есть переменные инициализации
-            // Мы попробуем найти JSON внутри тегов <script> или атрибутов
-            // Это "грязный" метод, но он работает для публичных ссылок без API ключа
-            
-            console.log("HTML получен, длина:", htmlText.length);
-
-            // Попытка 1: Поиск явных значений (иногда они просто в span)
-            // Но надежнее искать JS переменные, например `initWidget`
-            
-            // Примечание: Структура DonationAlerts меняется, но часто там есть JSON
-            // Ищем паттерны типа "goal_amount": 1000
-            
-            const raisedMatch = htmlText.match(/"raised_amount"\s*:\s*"?([\d\.]+)"?/);
-            const goalMatch = htmlText.match(/"goal_amount"\s*:\s*"?([\d\.]+)"?/);
-            const titleMatch = htmlText.match(/"title"\s*:\s*"([^"]+)"/);
-            
-            // Альтернативный поиск (если JSON экранирован)
-            const raisedAlt = htmlText.match(/raised_amount&quot;:(\d+)/);
-            
-            let foundData = false;
-            
-            if (raisedMatch && goalMatch) {
-                state.current = parseFloat(raisedMatch[1]);
-                state.target = parseFloat(goalMatch[1]);
-                if (titleMatch) state.title = decodeUnicode(titleMatch[1]);
-                foundData = true;
-            } else if (raisedAlt) {
-                 // Если нашли в другом формате
-                 state.current = parseFloat(raisedAlt[1]);
-                 // Ищем цель
-                 const goalAlt = htmlText.match(/goal_amount&quot;:(\d+)/);
-                 if(goalAlt) state.target = parseFloat(goalAlt[1]);
-                 
-                 const titleAlt = htmlText.match(/title&quot;:&quot;([^&]+)&quot;/);
-                 if(titleAlt) state.title = titleAlt[1];
-                 foundData = true;
+            // Обновление активной точки
+            const dots = dotsContainer.children;
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentIndex) {
+                    dots[i].className = 'w-8 h-3 rounded-full transition-all duration-300 bg-white shadow-sm';
+                } else {
+                    dots[i].className = 'w-3 h-3 rounded-full transition-all duration-300 bg-white/40 hover:bg-white/80 shadow-sm';
+                }
             }
-
-            if (foundData) {
-                updateUI();
-                alert(`Успешно! Цель: ${state.title}\nСобрано: ${state.current} / ${state.target}`);
-                
-                // Сохраняем в localStorage чтобы при перезагрузке OBS не было нулей
-                localStorage.setItem('da_widget_cache', JSON.stringify(state));
-            } else {
-                console.warn("Данные не найдены в HTML через RegEx");
-                // Если не нашли регуляркой, попробуем просто найти числа рядом со словами
-                throw new Error("Не удалось распарсить HTML виджета. Возможно DA изменили верстку.");
-            }
-
-        } catch (e) {
-            console.error(e);
-            alert("Ошибка получения данных: " + e.message + "\n\nПопробуйте использовать симуляцию.");
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
         }
-    }
 
-    function decodeUnicode(str) {
-        return str.replace(/\\u[\dA-F]{4}/gi, 
-            function (match) {
-                return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
-            });
-    }
+        function nextSlide() {
+            currentIndex = (currentIndex === totalSlides - 1) ? 0 : currentIndex + 1;
+            updateSlider();
+        }
 
-    // При старте проверяем кэш
-    const cached = localStorage.getItem('da_widget_cache');
-    if (cached) {
-        try {
-            const parsed = JSON.parse(cached);
-            state = parsed;
-            updateUI();
-        } catch(e) {}
-    } else {
-        // Если кэша нет, запускаем один раз симуляцию или пробуем фетч
-        updateFromWidgetUrl(); 
-    }
-    
-    // Проверка OBS
-    if (window.location.search.includes('layer-name')) {
-        document.body.classList.remove('preview-mode');
-        document.getElementById('controls').style.display = 'none';
-        // В OBS пробуем обновить данные автоматически раз в минуту
-        setInterval(updateFromWidgetUrl, 60000);
-    }
+        function prevSlide() {
+            currentIndex = (currentIndex === 0) ? totalSlides - 1 : currentIndex - 1;
+            updateSlider();
+        }
 
-</script>
+        function goToSlide(index) {
+            currentIndex = index;
+            updateSlider();
+        }
+
+        // Автоматическое перелистывание
+        function startAutoSlide() {
+            slideInterval = setInterval(nextSlide, 4000); // 4 секунды
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        // Запуск при загрузке
+        initDots();
+        startAutoSlide();
+    </script>
 </body>
 </html>
