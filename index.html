@@ -3,182 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Красивый Автоматический Баннер</title>
-    <!-- Подключаем Tailwind CSS для стилей -->
+    <title>Банер Шоколадика - Прозрачный</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Дополнительные стили, если нужны */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Устанавливаем прозрачный фон для body и html, 
+           чтобы при встраивании не было белых рамок.
+        */
+        html, body {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            height: 100%;
         }
     </style>
 </head>
-<body class="bg-transparent min-h-screen flex items-center justify-center p-4">
+<body class="flex items-center justify-center p-4">
 
-    <!-- Основной контейнер баннера -->
-    <!-- Уменьшили высоту с h-80/h-96 до h-72/h-80 -->
-    <div id="banner-container" 
-         class="relative w-full max-w-4xl overflow-hidden rounded-3xl shadow-2xl h-72 sm:h-80 group"
-         onmouseenter="stopAutoSlide()" 
-         onmouseleave="startAutoSlide()">
+    <!-- НАЧАЛО БАНЕРА -->
+    <!-- 
+       Контейнер банера. 
+       Благодаря rounded-3xl у него скругленные края.
+       Все что снаружи этих краев - прозрачное.
+    -->
+    <div class="w-full max-w-sm relative transform transition-transform duration-300 hover:-translate-y-1 cursor-pointer font-sans">
         
-        <!-- Обертка для слайдов (двигается влево/вправо) -->
-        <div id="slides-wrapper" class="flex h-full transition-transform duration-500 ease-out" style="transform: translateX(0%);">
+        <!-- Внешняя обводка (Темный шоколад) -->
+        <div class="bg-[#8D6E63] rounded-3xl p-1 shadow-xl">
             
-            <!-- Слайд 1: Telegram -->
-            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-blue-600 to-cyan-500 p-6 sm:p-14 text-white">
-                <!-- Иконка слева (увеличена до 110px) -->
-                <div class="flex-shrink-0 mr-6 sm:mr-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                </div>
-                <!-- Текст справа -->
-                <div class="text-left">
-                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Telegram канал</h2>
-                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Инфа по стримам и всякие мемы</p>
-                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
-                        <span>Ссылка в профиле</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
+            <!-- Внутренний контейнер -->
+            <div class="bg-gradient-to-r from-[#D7CCC8] to-[#EFEBE9] rounded-[20px] p-5 flex flex-col relative overflow-hidden border-b-4 border-[#A1887F]">
+                
+                <!-- Декоративные звезды (SVG) -->
+                <svg class="absolute top-2 right-10 text-yellow-400 opacity-50 w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <svg class="absolute bottom-4 left-1/2 text-yellow-400 opacity-50 w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+
+                <div class="flex justify-between items-start z-10">
+                    <!-- Левая часть: Текст -->
+                    <div class="flex flex-col">
+                        <span class="bg-[#5D4037] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider inline-block mb-1 w-max">
+                            Promo
+                        </span>
+                        <h3 class="text-[#3E2723] font-extrabold text-xl leading-none tracking-tight">
+                            ДАРИМ <br/> КЕШБЭК
+                        </h3>
+                        <p class="text-[#5D4037] text-[11px] font-bold leading-tight mt-1 opacity-90">
+                            за отправленные <br/> подарки
+                        </p>
+                    </div>
+                    
+                    <!-- Правая часть: Процентный бейдж -->
+                    <div class="bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-2xl p-2 shadow-lg transform rotate-3 flex flex-col items-center justify-center min-w-[75px] border border-orange-300 mt-2">
+                        <span class="text-[10px] font-bold opacity-90 uppercase">до</span>
+                        <span class="text-2xl font-black leading-none drop-shadow-sm">30%</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Слайд 2: Донат -->
-            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-rose-600 to-orange-500 p-6 sm:p-14 text-white">
-                <!-- Иконка слева (увеличена до 110px) -->
-                <div class="flex-shrink-0 mr-6 sm:mr-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                <!-- Подвал банера с иконкой -->
+                <div class="text-[#5D4037] text-xs mt-3 font-medium opacity-80 flex items-center gap-1.5 pt-1 border-t border-[#A1887F]/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="8" cy="8" r="6"/>
+                        <path d="M18.09 10.37A6 6 0 1 1 10.34 18"/>
+                        <path d="M7 6h1v4"/>
+                        <path d="M17.12 10.06c0 .16.13.16.16.43"/>
                     </svg>
-                </div>
-                <!-- Текст справа -->
-                <div class="text-left">
-                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Поддержи донатом</h2>
-                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Ваша помощь развивает и мотивирует меня</p>
-                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
-                        <span>Ссылка в профиле</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                    </div>
+                    в миниапп Шоколадика
                 </div>
             </div>
-
-            <!-- Слайд 3: Суперподписка -->
-            <div class="w-full h-full flex-shrink-0 flex flex-row items-center justify-start bg-gradient-to-br from-violet-700 to-purple-500 p-6 sm:p-14 text-white">
-                <!-- Иконка слева (увеличена до 110px) -->
-                <div class="flex-shrink-0 mr-6 sm:mr-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-lg transform scale-90 sm:scale-100">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
-                </div>
-                <!-- Текст справа -->
-                <div class="text-left">
-                    <h2 class="text-3xl sm:text-5xl font-black mb-3 tracking-tight drop-shadow-md leading-tight">Суперподписка</h2>
-                    <p class="text-xl sm:text-3xl font-semibold opacity-95 mb-5 leading-snug">Оформи сейчас и получи привелегии в чате, и доп бонусы</p>
-                    <div class="flex items-center gap-3 text-lg sm:text-xl font-bold bg-white/20 w-fit px-5 py-2 rounded-xl backdrop-blur-md shadow-inner border border-white/10">
-                        <span>7 дней бесплатно</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
         </div>
-
-        <!-- Кнопка Назад (сделали чуть крупнее) -->
-        <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/40 transition-all z-10 hidden sm:block opacity-0 group-hover:opacity-100 scale-90 active:scale-95 border border-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-        </button>
-
-        <!-- Кнопка Вперед (сделали чуть крупнее) -->
-        <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/40 transition-all z-10 hidden sm:block opacity-0 group-hover:opacity-100 scale-90 active:scale-95 border border-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        </button>
-
-        <!-- Индикаторы (точки) -->
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-10" id="dots-container">
-            <!-- Точки генерируются автоматически -->
-        </div>
-
     </div>
+    <!-- КОНЕЦ БАНЕРА -->
 
-    <script>
-        let currentIndex = 0;
-        const slides = document.querySelectorAll('#slides-wrapper > div');
-        const totalSlides = slides.length;
-        const wrapper = document.getElementById('slides-wrapper');
-        const dotsContainer = document.getElementById('dots-container');
-        let slideInterval;
-
-        // Инициализация точек (с увеличенным размером)
-        function initDots() {
-            for (let i = 0; i < totalSlides; i++) {
-                const dot = document.createElement('button');
-                dot.className = `h-3 rounded-full transition-all duration-300 shadow-sm ${i === 0 ? 'bg-white w-8' : 'bg-white/40 hover:bg-white/80 w-3'}`;
-                dot.onclick = () => goToSlide(i);
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        // Обновление отображения слайдера и точек
-        function updateSlider() {
-            // Сдвиг контейнера
-            wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            // Обновление активной точки
-            const dots = dotsContainer.children;
-            for (let i = 0; i < dots.length; i++) {
-                if (i === currentIndex) {
-                    dots[i].className = 'w-8 h-3 rounded-full transition-all duration-300 bg-white shadow-sm';
-                } else {
-                    dots[i].className = 'w-3 h-3 rounded-full transition-all duration-300 bg-white/40 hover:bg-white/80 shadow-sm';
-                }
-            }
-        }
-
-        function nextSlide() {
-            currentIndex = (currentIndex === totalSlides - 1) ? 0 : currentIndex + 1;
-            updateSlider();
-        }
-
-        function prevSlide() {
-            currentIndex = (currentIndex === 0) ? totalSlides - 1 : currentIndex - 1;
-            updateSlider();
-        }
-
-        function goToSlide(index) {
-            currentIndex = index;
-            updateSlider();
-        }
-
-        // Автоматическое перелистывание
-        function startAutoSlide() {
-            slideInterval = setInterval(nextSlide, 4000); // 4 секунды
-        }
-
-        function stopAutoSlide() {
-            clearInterval(slideInterval);
-        }
-
-        // Запуск при загрузке
-        initDots();
-        startAutoSlide();
-    </script>
 </body>
 </html>
