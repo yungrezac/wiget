@@ -14,18 +14,18 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden; /* Скрываем скроллбары при анимации */
         }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
 
-    <!-- НАЧАЛО БАНЕРА -->
     <!-- 
-       Контейнер банера. 
-       Благодаря rounded-3xl у него скругленные края.
-       Все что снаружи этих краев - прозрачное.
+       ID "promo-banner" нужен для JS.
+       Классы opacity-0, translate-y-8 и pointer-events-none скрывают банер изначально.
+       transition-all duration-700 добавляют плавную анимацию.
     -->
-    <div class="w-full max-w-sm relative transform transition-transform duration-300 hover:-translate-y-1 cursor-pointer font-sans">
+    <div id="promo-banner" class="opacity-0 translate-y-8 pointer-events-none transition-all duration-700 ease-out w-full max-w-sm relative transform hover:-translate-y-1 cursor-pointer font-sans">
         
         <!-- Внешняя обводка (Темный шоколад) -->
         <div class="bg-[#8D6E63] rounded-3xl p-1 shadow-xl">
@@ -75,7 +75,37 @@
             </div>
         </div>
     </div>
-    <!-- КОНЕЦ БАНЕРА -->
+
+    <!-- СКРИПТ УПРАВЛЕНИЯ ВРЕМЕНЕМ -->
+    <script>
+        // Настройки времени (в миллисекундах)
+        const SHOW_DURATION = 15000; // 15 секунд показа
+        const CYCLE_INTERVAL = 120000; // 2 минуты (120 секунд) интервал
+
+        const banner = document.getElementById('promo-banner');
+
+        function showBanner() {
+            // Убираем классы скрытия, добавляем классы видимости
+            banner.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+            
+            // Запускаем таймер на исчезновение через 15 секунд
+            setTimeout(hideBanner, SHOW_DURATION);
+        }
+
+        function hideBanner() {
+            // Добавляем классы скрытия (прозрачность + сдвиг вниз)
+            banner.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
+        }
+
+        // 1. Показываем банер сразу при загрузке (с небольшой задержкой для срабатывания CSS transition)
+        setTimeout(showBanner, 100);
+
+        // 2. Устанавливаем интервал на каждые 2 минуты
+        setInterval(showBanner, CYCLE_INTERVAL);
+
+        // Для отладки (сообщение в консоль)
+        console.log(`Таймер запущен. Банер появится снова через ${CYCLE_INTERVAL/1000} секунд.`);
+    </script>
 
 </body>
 </html>
