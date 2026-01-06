@@ -3,109 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Банер Шоколадика - Прозрачный</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Анимированный виджет для OBS</title>
     <style>
-        /* Устанавливаем прозрачный фон для body и html, 
-           чтобы при встраивании не было белых рамок.
-        */
-        html, body {
-            background-color: transparent;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 2000px;
+            height: 500px;
+            background-color: transparent;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 100%;
             height: 100%;
-            overflow: hidden; /* Скрываем скроллбары при анимации */
+            position: relative;
+            background: transparent;
+        }
+        
+        /* Стиль для фиксированного первого изображения */
+        .fixed-image {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 400px;
+            width: auto;
+            z-index: 10;
+        }
+        
+        /* Стиль для движущихся изображений */
+        .moving-image {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 400px;
+            width: auto;
+        }
+        
+        /* Анимация движения справа налево */
+        @keyframes moveLeft {
+            0% {
+                left: 2000px; /* Начинаем справа за пределами экрана */
+            }
+            100% {
+                left: -500px; /* Заканчиваем слева за пределами экрана */
+            }
+        }
+        
+        /* Информационное сообщение */
+        .info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 3px;
+            z-index: 100;
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
-
-    <!-- 
-       ID "promo-banner" нужен для JS.
-       Классы opacity-0, translate-y-8 и pointer-events-none скрывают банер изначально.
-       transition-all duration-700 добавляют плавную анимацию.
-    -->
-    <div id="promo-banner" class="opacity-0 translate-y-8 pointer-events-none transition-all duration-700 ease-out w-full max-w-sm relative transform hover:-translate-y-1 cursor-pointer font-sans">
+<body>
+    <div class="container" id="widget-container">
+        <!-- Фиксированное первое изображение -->
+        <img src="https://i.ibb.co/mrJnxkDc/Frame-30-1.png" class="fixed-image" alt="Изображение 1" id="fixed-img">
         
-        <!-- Внешняя обводка (Темный шоколад) -->
-        <div class="bg-[#8D6E63] rounded-3xl p-1 shadow-xl">
-            
-            <!-- Внутренний контейнер -->
-            <div class="bg-gradient-to-r from-[#D7CCC8] to-[#EFEBE9] rounded-[20px] p-5 flex flex-col relative overflow-hidden border-b-4 border-[#A1887F]">
-                
-                <!-- Декоративные звезды (SVG) -->
-                <svg class="absolute top-2 right-10 text-yellow-400 opacity-50 w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <svg class="absolute bottom-4 left-1/2 text-yellow-400 opacity-50 w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-
-                <div class="flex justify-between items-start z-10">
-                    <!-- Левая часть: Текст -->
-                    <div class="flex flex-col">
-                        <span class="bg-[#5D4037] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider inline-block mb-1 w-max">
-                            Promo
-                        </span>
-                        <h3 class="text-[#3E2723] font-extrabold text-xl leading-none tracking-tight">
-                            ДАРИМ <br/> КЕШБЭК
-                        </h3>
-                        <p class="text-[#5D4037] text-[11px] font-bold leading-tight mt-1 opacity-90">
-                            за отправленные <br/> подарки
-                        </p>
-                    </div>
-                    
-                    <!-- Правая часть: Процентный бейдж -->
-                    <div class="bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-2xl p-2 shadow-lg transform rotate-3 flex flex-col items-center justify-center min-w-[75px] border border-orange-300 mt-2">
-                        <span class="text-[10px] font-bold opacity-90 uppercase">до</span>
-                        <span class="text-2xl font-black leading-none drop-shadow-sm">30%</span>
-                    </div>
-                </div>
-
-                <!-- Подвал банера с иконкой -->
-                <div class="text-[#5D4037] text-xs mt-3 font-medium opacity-80 flex items-center gap-1.5 pt-1 border-t border-[#A1887F]/20">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="8" cy="8" r="6"/>
-                        <path d="M18.09 10.37A6 6 0 1 1 10.34 18"/>
-                        <path d="M7 6h1v4"/>
-                        <path d="M17.12 10.06c0 .16.13.16.16.43"/>
-                    </svg>
-                    в миниапп Шоколадика
-                </div>
-            </div>
+        <!-- Контейнер для движущихся изображений -->
+        <div id="moving-images-container"></div>
+        
+        <!-- Информационное сообщение (можно удалить в финальной версии) -->
+        <div class="info">
+            Размер: 2000x500px | Изображений: 9 | Фон: прозрачный
         </div>
     </div>
 
-    <!-- СКРИПТ УПРАВЛЕНИЯ ВРЕМЕНЕМ -->
     <script>
-        // Настройки времени (в миллисекундах)
-        const SHOW_DURATION = 15000; // 15 секунд показа
-        const CYCLE_INTERVAL = 120000; // 2 минуты (120 секунд) интервал
-
-        const banner = document.getElementById('promo-banner');
-
-        function showBanner() {
-            // Убираем классы скрытия, добавляем классы видимости
-            banner.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('moving-images-container');
             
-            // Запускаем таймер на исчезновение через 15 секунд
-            setTimeout(hideBanner, SHOW_DURATION);
-        }
-
-        function hideBanner() {
-            // Добавляем классы скрытия (прозрачность + сдвиг вниз)
-            banner.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
-        }
-
-        // 1. Показываем банер сразу при загрузке (с небольшой задержкой для срабатывания CSS transition)
-        setTimeout(showBanner, 100);
-
-        // 2. Устанавливаем интервал на каждые 2 минуты
-        setInterval(showBanner, CYCLE_INTERVAL);
-
-        // Для отладки (сообщение в консоль)
-        console.log(`Таймер запущен. Банер появится снова через ${CYCLE_INTERVAL/1000} секунд.`);
+            // Массив с URL изображений (первое изображение уже зафиксировано)
+            const imageUrls = [
+                "https://i.ibb.co/9kgWsMBK/Frame-31.png",
+                "https://i.ibb.co/vvhr9TH8/Frame-32.png",
+                "https://i.ibb.co/pr6CjxKb/Frame-33-1.png",
+                "https://i.ibb.co/WQYY57N/Frame-34.png",
+                "https://i.ibb.co/zhCVgz5m/Frame-35.png",
+                "https://i.ibb.co/Gv1H3HLF/Frame-36.png",
+                "https://i.ibb.co/Df9GV6T1/Frame-37.png",
+                "https://i.ibb.co/NnxptPXs/Frame-38.png"
+            ];
+            
+            // Создаем движущиеся изображения
+            imageUrls.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'moving-image';
+                img.alt = `Изображение ${index + 2}`;
+                
+                // Устанавливаем анимацию с задержкой для каждого изображения
+                // для создания непрерывного потока
+                const animationDuration = 20; // секунд для полного цикла
+                const delayBetweenImages = animationDuration / imageUrls.length;
+                
+                img.style.animation = `moveLeft ${animationDuration}s linear infinite`;
+                img.style.animationDelay = `${index * delayBetweenImages}s`;
+                
+                container.appendChild(img);
+            });
+            
+            // Проверяем загрузку всех изображений
+            const allImages = document.querySelectorAll('img');
+            let loadedCount = 0;
+            
+            allImages.forEach(img => {
+                img.onload = function() {
+                    loadedCount++;
+                    if (loadedCount === allImages.length) {
+                        console.log('Все изображения загружены');
+                    }
+                };
+                
+                img.onerror = function() {
+                    console.error(`Ошибка загрузки изображения: ${img.src}`);
+                    // Заменяем сломанное изображение на placeholder
+                    img.src = `https://via.placeholder.com/300x400/333/fff?text=Image+${img.alt}`;
+                };
+            });
+            
+            // Настраиваем высоту фиксированного изображения
+            const fixedImg = document.getElementById('fixed-img');
+            fixedImg.onload = function() {
+                // Подгоняем высоту под общий размер виджета
+                this.style.height = '400px';
+            };
+        });
     </script>
-
 </body>
 </html>
