@@ -31,28 +31,38 @@
             position: absolute;
             left: 0;
             top: 50%;
-            transform: translateY(-50%);
-            height: 400px;
+            transform: translateY(-50%) scale(0.5);
+            height: 800px; /* Исходная высота 800px, после scale(0.5) будет 400px */
             width: auto;
             z-index: 10;
+        }
+        
+        /* Область для движущихся изображений (справа от фиксированного) */
+        .moving-track {
+            position: absolute;
+            left: 400px; /* Фиксированное изображение шириной ~400px после масштабирования */
+            top: 0;
+            width: 1600px; /* Оставшееся пространство */
+            height: 100%;
+            overflow: hidden;
         }
         
         /* Стиль для движущихся изображений */
         .moving-image {
             position: absolute;
             top: 50%;
-            transform: translateY(-50%);
-            height: 400px;
+            transform: translateY(-50%) scale(0.5);
+            height: 800px; /* Исходная высота 800px, после scale(0.5) будет 400px */
             width: auto;
         }
         
         /* Анимация движения справа налево */
         @keyframes moveLeft {
             0% {
-                left: 2000px; /* Начинаем справа за пределами экрана */
+                left: 1600px; /* Начинаем справа за пределами видимой области */
             }
             100% {
-                left: -500px; /* Заканчиваем слева за пределами экрана */
+                left: -800px; /* Заканчиваем слева за пределами видимой области */
             }
         }
         
@@ -77,11 +87,11 @@
         <img src="https://i.ibb.co/mrJnxkDc/Frame-30-1.png" class="fixed-image" alt="Изображение 1" id="fixed-img">
         
         <!-- Контейнер для движущихся изображений -->
-        <div id="moving-images-container"></div>
+        <div class="moving-track" id="moving-images-container"></div>
         
         <!-- Информационное сообщение (можно удалить в финальной версии) -->
         <div class="info">
-            Размер: 2000x500px | Изображений: 9 | Фон: прозрачный
+            Размер: 2000x500px | Изображений: 9 | Фон: прозрачный | Масштаб: 50%
         </div>
     </div>
 
@@ -101,6 +111,18 @@
                 "https://i.ibb.co/NnxptPXs/Frame-38.png"
             ];
             
+            // Вычисляем параметры для равномерного распределения
+            const imageCount = imageUrls.length;
+            const trackWidth = 1600; // Ширина области движения
+            const imageWidth = 400; // Примерная ширина изображения после масштабирования
+            const spacing = 100; // Расстояние между изображениями
+            
+            // Длина всего пути (включая все изображения и промежутки)
+            const totalPathLength = (imageWidth + spacing) * imageCount;
+            
+            // Время, за которое одно изображение проходит всю длину трека
+            const baseAnimationTime = 30; // секунд
+            
             // Создаем движущиеся изображения
             imageUrls.forEach((url, index) => {
                 const img = document.createElement('img');
@@ -108,13 +130,13 @@
                 img.className = 'moving-image';
                 img.alt = `Изображение ${index + 2}`;
                 
-                // Устанавливаем анимацию с задержкой для каждого изображения
-                // для создания непрерывного потока
-                const animationDuration = 20; // секунд для полного цикла
-                const delayBetweenImages = animationDuration / imageUrls.length;
+                // Позиционируем изображения с правильными интервалами
+                const startPosition = trackWidth + (index * (imageWidth + spacing));
                 
-                img.style.animation = `moveLeft ${animationDuration}s linear infinite`;
-                img.style.animationDelay = `${index * delayBetweenImages}s`;
+                // Анимация движения
+                img.style.left = `${startPosition}px`;
+                img.style.animation = `moveLeft ${baseAnimationTime}s linear infinite`;
+                img.style.animationDelay = `${-index * (baseAnimationTime / imageCount)}s`;
                 
                 container.appendChild(img);
             });
@@ -128,22 +150,50 @@
                     loadedCount++;
                     if (loadedCount === allImages.length) {
                         console.log('Все изображения загружены');
+                        // После загрузки всех изображений уточняем их реальные размеры
+                        updateImagePositions();
                     }
                 };
                 
                 img.onerror = function() {
                     console.error(`Ошибка загрузки изображения: ${img.src}`);
                     // Заменяем сломанное изображение на placeholder
-                    img.src = `https://via.placeholder.com/300x400/333/fff?text=Image+${img.alt}`;
+                    img.src = `https://via.placeholder.com/600x800/333/fff?text=Image+${img.alt}`;
+                    img.style.height = '800px';
                 };
             });
             
-            // Настраиваем высоту фиксированного изображения
-            const fixedImg = document.getElementById('fixed-img');
-            fixedImg.onload = function() {
-                // Подгоняем высоту под общий размер виджета
-                this.style.height = '400px';
-            };
+            // Функция для обновления позиций на основе реальных размеров изображений
+            function updateImagePositions() {
+                const movingImages = document.querySelectorAll('.moving-image');
+                const firstImageWidth = document.querySelector('.fixed-image').offsetWidth;
+                
+                // Обновляем позицию трека для движущихся изображений
+                document.querySelector('.moving-track').style.left = `${firstImageWidth}px`;
+                
+                // Обновляем ширину трека
+                const newTrackWidth = 2000 - firstImageWidth;
+                document.querySelector('.moving-track').style.width = `${newTrackWidth}px`;
+                
+                // Обновляем анимацию для новых размеров
+                const keyframes = `
+                @keyframes moveLeft {
+                    0% {
+                        left: ${newTrackWidth}px;
+                    }
+                    100% {
+                        left: -800px;
+                    }
+                }`;
+                
+                // Добавляем обновленные keyframes
+                const styleSheet = document.createElement('style');
+                styleSheet.type = 'text/css';
+                styleSheet.innerText = keyframes;
+                document.head.appendChild(styleSheet);
+                
+                console.log(`Фиксированное изображение: ${firstImageWidth}px, Трек: ${newTrackWidth}px`);
+            }
         });
     </script>
 </body>
